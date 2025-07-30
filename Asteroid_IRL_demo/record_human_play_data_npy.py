@@ -1,18 +1,20 @@
 import numpy as np
+import keyboard
 import time
 import os
 from ocatari.core import OCAtari
 import ocatari.ram.asteroids as OCA_asteroids
 import gc
-from pynput import keyboard
+
+### 구간별로 쪼개서 저장한 npy 파일들을 나중에 하나로 합쳐줘야함
 
 # 설정
-save_dir = "./human_play_data/subject06"
+save_dir = "./human_play_data/subject05"
 os.makedirs(save_dir, exist_ok=True)
 BUFFER_SAVE_FREQ = 500  # 프레임당 저장 주기
 
 # 환경 초기화
-env = OCAtari(env_name="ALE/Tennis-v5", mode="vision", obs_mode="ori", render_mode="human", buffer_window_size=1)
+env = OCAtari(env_name="Asteroids-ramNoFrameskip-v4", mode="vision", obs_mode="ori", render_mode="human", buffer_window_size=1)
 objects = OCA_asteroids._init_objects_ram(hud=False)
 
 # 기록 초기화
@@ -26,32 +28,6 @@ def save_buffered_data(index):
     np.save(os.path.join(save_dir, f"actions_part{index}.npy"), np.array(actions))
     np.save(os.path.join(save_dir, f"rewards_part{index}.npy"), np.array(rewards))
     np.save(os.path.join(save_dir, f"steps_part{index}.npy"), np.array(steps_in_game))
-
-# 키 상태 저장용 변수
-key_states = set()
-
-# 키 입력 핸들러
-def on_press(key):
-    try:
-        if hasattr(key, 'char') and key.char:
-            key_states.add(key.char)
-        elif hasattr(key, 'name'):
-            key_states.add(key.name)
-    except:
-        pass
-
-def on_release(key):
-    try:
-        if hasattr(key, 'char') and key.char:
-            key_states.discard(key.char)
-        elif hasattr(key, 'name'):
-            key_states.discard(key.name)
-    except:
-        pass
-
-# 리스너 시작
-listener = keyboard.Listener(on_press=on_press, on_release=on_release)
-listener.start()
 
 # 시작
 start_time = time.time()
@@ -75,44 +51,16 @@ try:
 
             # 키보드 입력 처리
             action = 0
-            if 'space' in key_states:
-                if 'up' in key_states and 'right' in key_states:
-                    action = 14  # UPRIGHTFIRE
-                elif 'up' in key_states and 'left' in key_states:
-                    action = 15  # UPLEFTFIRE
-                elif 'down' in key_states and 'right' in key_states:
-                    action = 16  # DOWNRIGHTFIRE
-                elif 'down' in key_states and 'left' in key_states:
-                    action = 17  # DOWNLEFTFIRE
-                elif 'up' in key_states:
-                    action = 10  # UPFIRE
-                elif 'down' in key_states:
-                    action = 13  # DOWNFIRE
-                elif 'left' in key_states:
-                    action = 12  # LEFTFIRE
-                elif 'right' in key_states:
-                    action = 11  # RIGHTFIRE
-                else:
-                    action = 1   # FIRE only
-            else:
-                if 'up' in key_states and 'right' in key_states:
-                    action = 6  # UPRIGHT
-                elif 'up' in key_states and 'left' in key_states:
-                    action = 7  # UPLEFT
-                elif 'down' in key_states and 'right' in key_states:
-                    action = 8  # DOWNRIGHT
-                elif 'down' in key_states and 'left' in key_states:
-                    action = 9  # DOWNLEFT
-                elif 'up' in key_states:
-                    action = 2  # UP
-                elif 'down' in key_states:
-                    action = 5  # DOWN
-                elif 'left' in key_states:
-                    action = 4  # LEFT
-                elif 'right' in key_states:
-                    action = 3  # RIGHT
-                
-                
+            if keyboard.is_pressed('space'):
+                action = 1
+            if keyboard.is_pressed('up'):
+                action = 2
+            if keyboard.is_pressed('down'):
+                action = 5
+            if keyboard.is_pressed('left'):
+                action = 4
+            if keyboard.is_pressed('right'):
+                action = 3
 
             obs, reward, terminated, truncated, info = env.step(action)
             ram = env.get_ram()
@@ -162,7 +110,6 @@ except TimeoutError as e:
     print(f"\n{e}")
 finally:
     env.close()
-    listener.stop()
     print(f"\n💾 총 {game_frame_counter}프레임을 기록 중... 잔여 데이터 저장 시작.")
 
     if rams_record:
