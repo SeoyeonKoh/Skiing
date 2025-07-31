@@ -41,13 +41,6 @@ scores        = []
 steps         = []
 scores_window = deque(maxlen=10)
 
-# ─── replay 기록용 기본 dict ──────────────────────────────────────────
-record_history = {
-    "states": [],
-    "actions": [],
-    "rewards": []
-}
-
 # ─── 환경 래퍼 (RAM만 뽑아서 반환) ────────────────────────────────────
 class OCAtariRamEnv(gym.Env):
     def __init__(self, env_name: str, buffer_window_size: int = 1):
