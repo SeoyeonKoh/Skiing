@@ -6,7 +6,7 @@ ALE Documentation: https://ale.farama.org/environments/skiing/
 
 ---
 
-1. human_play.py : 직접 플레이해볼 경우
+1. human_play2.py : 직접 플레이해볼 경우
    
 2. DQN_skiing2.py : ram 기반 DQN 학습
    
