@@ -1,18 +1,23 @@
 __pycache__/
 *.py[cod]
 .DS_Store
+.idea/
+.ipynb_checkpoints/
 .venv/
 venv/
 
-# Local training outputs
-dqn/
+# Local training outputs and checkpoints
 v*/
 videos/
 trajectory.pkl
 *.pkl
+*.pth
+*.pt
+*.p
+dqn/model/
+dqn/score/
+dqn/setup/
 
-# Generated media
+# Generated replay media and large experiment data
 *.mp4
-
-# Large local datasets created during experiments
 *.npy

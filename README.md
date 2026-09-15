@@ -1,77 +1,76 @@
-# OCAtari Skiing DQN
+# OCAtari Skiing RL Agent
 
-OCAtari/Gymnasium 기반으로 Atari `Skiing` 환경을 직접 플레이하고, RAM state를 이용해 DQN 학습 및 리플레이 영상을 만드는 실험 코드입니다.
-반복적으로 발생하는 충돌·게이트 실패 패턴을 관찰하고 reward shaping을 조정하면서 에이전트 행동이 어떻게 달라지는지 실험했습니다.
+Reinforcement learning experiments for the Atari `Skiing` environment using OCAtari, Gymnasium, and a DQN agent trained on RAM observations.
 
-원본 작업 브랜치: [`KAIST-PAI-lab/Atari_DQN`의 `seoyeon` 브랜치](https://github.com/KAIST-PAI-lab/Atari_DQN/tree/seoyeon)
+The project focuses on how reward shaping changes agent behavior: recurring failure patterns such as collision, missed gates, and stalled movement are translated into reward priorities, then compared through replay generation and score plots.
 
-## 프로젝트 구성
+## Origin
 
-| 파일/폴더 | 설명 |
+This repository is organized from the PAI Lab, KAIST `seoyeon` branch of [`KAIST-PAI-lab/Atari_DQN`](https://github.com/KAIST-PAI-lab/Atari_DQN/tree/seoyeon). The latest tree is cleaned around the Skiing RL agent work, with local experiment outputs kept out of Git.
+
+## Repository Structure
+
+| Path | Contents |
 |---|---|
-| `human_play2.py` | 키보드로 Skiing을 직접 플레이하는 스크립트 |
-| `DQN_skiing2.py` | RAM observation 기반 DQN 학습 스크립트 |
-| `mp4.py` | 학습/플레이 기록 `.pkl`을 리플레이 `.mp4`로 변환 |
-| `plot.py` | episode별 score를 막대그래프로 시각화 |
-| `lineplot.py` | episode별 score 변화를 선 그래프로 시각화 |
-| `Asteroid_IRL_demo/` | Asteroids 환경에서 RAM/object 기반 DQN, human play data 기록, 리플레이 생성 실험 |
+| `dqn/` | DQN agent and Q-network implementation |
+| `training/` | Skiing training variants, including RAM-based DQN and reward-shaping experiments |
+| `play/` | Human-play scripts for manually testing the Skiing environment |
+| `tools/` | Replay-to-mp4 and score plotting utilities |
+| `results/plots/` | Small score-plot images kept as lightweight experiment summaries |
+| `legacy/` | Earlier baseline script kept for reference |
 
-## 실험 초점
+Large local artifacts are intentionally excluded: episode history `.pkl` files, model checkpoints, videos, `.npy` datasets, IDE files, and Python caches.
 
-- RAM observation 기반 DQN 학습
-- 실패 패턴을 반영한 reward shaping
-- 플레이 기록 저장 및 mp4 리플레이 생성
-- 점수 변화 시각화를 통한 episode별 성능 확인
+## Main Experiments
 
-## 참고 자료
+- `training/DQN_RAM_skiing.py`: RAM-observation DQN training baseline.
+- `training/DQN_skiing_collision.py`: reward shaping around collision, gate miss, and stuck patterns.
+- `training/DQN_skiing_pass.py`: reward shaping variant focused on gate-passing behavior.
+- `training/DQN_skiing_upgrade.py`: later reward-shaping variant for behavior refinement.
+- `tools/replay_to_mp4.py`: converts saved episode histories into replay videos.
+- `tools/plot_scores_line.py`, `tools/plot_scores_bar.py`: visualize score progression from local history files.
 
-- DQN sample code: <https://github.com/CCS-Lab/project_highway_irl_public/blob/main/2_dqn_train_exp_iter.py>
-- OCAtari repository: <https://github.com/k4ntz/OC_Atari>
-- ALE Skiing documentation: <https://ale.farama.org/environments/skiing/>
-
-## 실행 준비
-
-Python 환경에서 아래 라이브러리가 필요합니다.
+## Setup
 
 ```bash
-pip install numpy gymnasium ale-py ocatari pygame opencv-python pillow matplotlib
+pip install -r requirements.txt
 ```
 
-Atari ROM/환경 설정은 사용하는 `ale-py`, `gymnasium`, `ocatari` 버전에 따라 추가 설정이 필요할 수 있습니다.
+Depending on the local Atari/ALE setup, additional ROM configuration may be required for `ale-py`, `gymnasium`, and `ocatari`.
 
-## 실행 예시
+## Run Examples
 
-직접 플레이:
+Train a RAM-based agent from the repository root:
 
 ```bash
-python human_play2.py
+python -m training.DQN_RAM_skiing
 ```
 
-리플레이 영상 생성:
+Run a reward-shaping variant:
 
 ```bash
-python mp4.py --pkl path/to/history1_score-13634.0.pkl --out videos/replay.mp4 --fps 30
+python -m training.DQN_skiing_collision
 ```
 
-점수 시각화:
+Play manually:
 
 ```bash
-python plot.py
-python lineplot.py
+python -m play.human_play_rgb
 ```
 
-## 현재 확인할 점
+Create a replay video from a local history file:
 
-- `DQN_skiing2.py`는 `from dqn.agent import Agent`를 사용하지만, 현재 업로드된 파일에는 `dqn/agent.py`가 없습니다. 로컬에 남아 있는 파일이 있으면 추가 업로드가 필요합니다.
-- `DQN_skiing2.py`의 `n_episodes = ###` 값은 실행 전 숫자로 설정해야 합니다.
-- `plot.py`, `lineplot.py`는 기본적으로 `v1/history*_score-*.pkl` 경로를 읽습니다. 실제 기록 폴더명에 맞게 수정해서 실행하세요.
-- `Asteroid_IRL_demo/human_play_data/`에는 실험 데이터 `.npy` 파일이 많이 포함되어 있습니다. 코드 중심 공개용으로 정리하려면 데이터는 release, Drive, 또는 별도 storage로 옮기는 것을 권장합니다.
+```bash
+python -m tools.replay_to_mp4 --pkl v2/history3206_score-4507.0.pkl --out videos/replay.mp4 --fps 30
+```
 
-## 잔여 업로드 체크리스트
+Plot local score histories:
 
-로컬 원본 폴더를 다시 확인할 때 아래 파일/폴더가 빠졌는지 우선 확인하면 됩니다.
+```bash
+python -m tools.plot_scores_line
+python -m tools.plot_scores_bar
+```
 
-- `dqn/agent.py` 또는 DQN agent 구현 파일
-- 학습 결과 폴더 `v1/`, `dqn/`, `videos/`
-- `requirements.txt` 또는 사용한 Python 환경 기록
-- 최종 score/episode 결과 파일
+## Local Artifacts Not Tracked
+
+The local `Desktop/Skiing` folder contains trained checkpoints, thousands of episode history files, and replay videos. These are useful for analysis but too noisy for the repository. They are excluded by `.gitignore`; only the code and compact result plots are tracked here.
