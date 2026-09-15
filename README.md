@@ -1,6 +1,7 @@
-# Skiing DQN
+# OCAtari Skiing DQN
 
 OCAtari/Gymnasium 기반으로 Atari `Skiing` 환경을 직접 플레이하고, RAM state를 이용해 DQN 학습 및 리플레이 영상을 만드는 실험 코드입니다.
+반복적으로 발생하는 충돌·게이트 실패 패턴을 관찰하고 reward shaping을 조정하면서 에이전트 행동이 어떻게 달라지는지 실험했습니다.
 
 원본 작업 브랜치: [`KAIST-PAI-lab/Atari_DQN`의 `seoyeon` 브랜치](https://github.com/KAIST-PAI-lab/Atari_DQN/tree/seoyeon)
 
@@ -14,6 +15,13 @@ OCAtari/Gymnasium 기반으로 Atari `Skiing` 환경을 직접 플레이하고, 
 | `plot.py` | episode별 score를 막대그래프로 시각화 |
 | `lineplot.py` | episode별 score 변화를 선 그래프로 시각화 |
 | `Asteroid_IRL_demo/` | Asteroids 환경에서 RAM/object 기반 DQN, human play data 기록, 리플레이 생성 실험 |
+
+## 실험 초점
+
+- RAM observation 기반 DQN 학습
+- 실패 패턴을 반영한 reward shaping
+- 플레이 기록 저장 및 mp4 리플레이 생성
+- 점수 변화 시각화를 통한 episode별 성능 확인
 
 ## 참고 자료
 
